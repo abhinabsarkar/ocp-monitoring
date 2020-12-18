@@ -36,3 +36,11 @@ data:
     grafana_url=https://grafana-route-abs-grafana.apps.<servername>.com/d/mfbPKp1Mz/openshift-namespace-resources?orgId=1&var-namespace=ns_to_query&from=now-14d&to=now
     # Max CPU percentage threshold to report in the email list
     max_cpu_threshold=50
+    # SMTP server
+    smtp_server=smtp-server
+    # TLS port is 587
+    smtp_port=587
+    # Sender email
+    sender_email=no-reply@email.com
+    # Receiver email
+    receiver_email=abhinab.sarkar@email.com
