@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ocp-metrics
+spec:
+  schedule: "*/30 * * * *"  
+  concurrencyPolicy: "Replace" 
+  startingDeadlineSeconds: 200 
+  suspend: true            
+  successfulJobsHistoryLimit: 3 
+  failedJobsHistoryLimit: 1     
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            parent: "ocp-metrics-cronjob"
+        spec:
+          containers:
+          - name: ocp-metrics
+            image: <image-registry>/ocp-metrics:v1.0
+            command: ["python", "main.py"]
+            volumeMounts:
+              - name: ocp-metrics-config
+                mountPath: "/app/config.ini"
+                subPath: "config.ini"
+          restartPolicy: OnFailure 
+          imagePullSecrets:
+            - name: nexus-pull
+          volumes:
+            - name: ocp-metrics-config
+              configMap:
+                name: ocp-metrics-configmap

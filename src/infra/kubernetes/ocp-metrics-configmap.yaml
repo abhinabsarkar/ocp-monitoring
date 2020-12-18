@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ocp-metrics-configmap
+data:
+  config.ini: |
+    [default]
+    token=xxxxxx
+    cluster_name=yyyyyyyy
+    api_endpoint=https://api-server:6443/api/v1/
+    prometheus_endpoint=https://prometheus-k8s-openshift-monitoring.apps.<server-name>.com/api/v1/query_range?
+    start_time=14
+    # Step time for CPU cores usage
+    step_time_cpu_cores_usage=10m
+    # Step time for CPU actual usage
+    step_time_cpu_actual_percentage=3h
+    # Rate for cpu usage average
+    rate_cpu_avg=30m
+    # Step time for max CPU cores usage
+    step_time_cpu_actual_max_percentage=2m
+    # Rate for cpu usage max
+    rate_cpu_max=5m
+    # Step time for CPU limits usage
+    step_time_cpu_limits_percentage=3h
+    # Step time for CPU requests usage
+    step_time_cpu_requests_percentage=3h
+    # Step time for Memory limits usage
+    step_time_memory_limits_percentage=3h
+    # Step time for Memory requests usage
+    step_time_memory_requests_percentage=3h
+    # Step time for Memory actual usage
+    step_time_memory_actual_percentage=3h
+    # Step time for max Memory actual usage
+    step_time_memory_max_percentage=5m
+    # Grafana url
+    grafana_url=https://grafana-route-abs-grafana.apps.<servername>.com/d/mfbPKp1Mz/openshift-namespace-resources?orgId=1&var-namespace=ns_to_query&from=now-14d&to=now
+    # Max CPU percentage threshold to report in the email list
+    max_cpu_threshold=50
