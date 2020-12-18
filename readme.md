@@ -1,4 +1,4 @@
-# OpenShift Monitoring 
+# OpenShift Monitoring using Custom dashboard
 OpenShift monitoring stack includes Prometheus for monitoring both systems and services, and Grafana for analyzing and visualizing metrics. However, Grafana instances provided with the monitoring stack (and its dashboards) are read-only. To solve this problem, we can use the community-powered Grafana operator provided by OperatorHub.
 > Community Operators are operators which have not been vetted or verified by Red Hat.
 
