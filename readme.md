@@ -4,6 +4,14 @@ OpenShift monitoring stack includes Prometheus for monitoring both systems and s
 
 This allows to write custom queries against the built-in Prometheus to extract metrics relevant to the requirements, and in turn one can create custom dashboards to visualize those metrics.
 
+Custom Grafana Dashboard:
+
+![Alt text](/images/grafana-dashboard.png)
+
+The report can then be generated to create charts as per the requirements. Sample report generated using python in html shown below:
+
+![Alt text](/images/chart.png)
+
 ## Deploying Grafana community edition
 * Create a namespace 
 * Navigate to OperatorHub and select the community-powered Grafana Operator. Install and deploy to the namespace.

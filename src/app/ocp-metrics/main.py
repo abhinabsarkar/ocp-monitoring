@@ -15,6 +15,7 @@ import response_format
 import HTML
 import notify
 import file_mgmt
+import chart
 
 # Parser to read configuration values
 config = configparser.ConfigParser()
@@ -31,26 +32,10 @@ try:
     cluster_name = config['default']['cluster_name']
     # Report file name
     filename = "Report.csv"
-    
-    # Get all namespaces
-    url = config['default']['api_endpoint'] + "namespaces"
-    # Bearer token for authorization
-    token = config['default']['token']
-    # headers is of Dictionary type in Python Requests
-    headers = {'Authorization': 'Bearer {}'.format(token)}
-    # data is of Dictionary type in Python Requests
-    payload = {}
-    # Invoke the API to get the namespace in JSON format
-    ns_response = api_client.get(url, headers, payload)
-    
-    # If the response is 200 OK
-    if int(ns_response.status_code) == 200:
-        # Load the json document into a python object
-        json_response = json.loads(ns_response.text)
-        logger.log_note('Loaded the json document into python object')
-        # Get list of namespaces from json
-        namespaces_list = jq.compile(".items[].metadata.name").input(json_response).all()
 
+    # Get the list of namespaces 
+    namespaces_list = metrics.list_namespaces()
+    if len(namespaces_list) > 0:
         # Loop through the namespaces list
         logger.log_note('Loop through the namespaces list')
         for counter in range(len(namespaces_list)):
@@ -116,6 +101,21 @@ try:
             except ValueError:
                 # Do nothing as it is not a number
                 logger.log_message("This is not a float number type")
+
+        # Get the namespace list from report list
+        ns_list = [row[0] for row in report_list]
+        # Remove the header from the list
+        ns_list.pop(0)
+        # Get the max CPU % used list from report list
+        max_cpu_list = [row[3] for row in report_list]
+        # Remove the header from the list
+        max_cpu_list.pop(0)
+        # Get the max Memory % used list from report list
+        max_memory_list = [row[7] for row in report_list]
+        # Remove the header from the list
+        max_memory_list.pop(0)
+        # Plot the bar chart
+        chart.bar_chart(ns_list, max_cpu_list, max_memory_list)
         
         # Create email parameters
         subject = "Cluster utilization report"
@@ -123,14 +123,20 @@ try:
         text_message = "<p style=\"font-size:20px;\"> The following namespaces in OpenShift cluster <b>" + cluster_name+ "</b>" \
             " have max CPU utilization less than <span style=\"color: Red\">" + threshold + "</span> percent over last <b>14</b> days. Also attached" \
             " is the report of resource utilization for all application namespaces.</p>" 
+        chart = "<img src='chart.png'>"
         table = response_format.html_result(report_list)
-        body = text_message + table
-
+        body = text_message + chart + table
+        # Add attachments
+        attachments = [filename, "chart.png"]
         # Send email notification
-        notify.send_email(subject, body, filename)
+        notify.send_email(subject, body, attachments)
 
     # Delete the report file & log its name
     file_list = file_mgmt.list_files(os.getcwd(), 'csv')
+    for file in file_list:
+        file_mgmt.delete_file(file)
+    # Delete the chart file & log its name
+    file_list = file_mgmt.list_files(os.getcwd(), 'png')
     for file in file_list:
         file_mgmt.delete_file(file)
     # Delete the log file

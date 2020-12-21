@@ -1,2 +1,4 @@
 jq
 requests
+matplotlib
+pandas

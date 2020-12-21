@@ -12,7 +12,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-def send_email(subject, body, filename):
+def send_email(subject, body, attachments):
     sender_email=config['default']['sender_email']
     receiver_email=config['default']['receiver_email']
     smtp_server = config['default']['smtp_server']
@@ -32,25 +32,28 @@ def send_email(subject, body, filename):
         # Add message body
         message.attach(MIMEText(body, "html"))
 
-        if (filename != ""):
-            # Add attachment
-            # Open file in binary mode
-            with open(filename, "rb") as attachment:
-                # Add file as application/octet-stream
-                # Email client can usually download this automatically as attachment
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(attachment.read())
+        # Parse through attachments - Report.csv & chart.png
+        if len(attachments) > 0:
+            for counter in range(len(attachments)): 
+                if (attachments[counter] != ""):
+                    # Add attachment
+                    # Open file in binary mode
+                    with open(attachments[counter], "rb") as attachment:
+                        # Add file as application/octet-stream
+                        # Email client can usually download this automatically as attachment
+                        part = MIMEBase("application", "octet-stream")
+                        part.set_payload(attachment.read())
 
-            # Encode file in ASCII characters to send by email    
-            encoders.encode_base64(part)
+                    # Encode file in ASCII characters to send by email    
+                    encoders.encode_base64(part)
 
-            # Add header as key/value pair to attachment part
-            part.add_header(
-                "Content-Disposition",
-                f"attachment; filename= {filename}",
-            )
-            # Add attachment to message and convert message to string
-            message.attach(part)
+                    # Add header as key/value pair to attachment part
+                    part.add_header(
+                        "Content-Disposition",
+                        f"attachment; filename= {attachments[counter]}",
+                    )
+                    # Add attachment to message and convert message to string
+                    message.attach(part)
 
         # Send email
         server.sendmail(sender_email, receiver_email, message.as_string())

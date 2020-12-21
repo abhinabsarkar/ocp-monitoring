@@ -22,7 +22,7 @@ def cpu_cores_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)       
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -39,7 +39,7 @@ def cpu_actual_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -56,7 +56,7 @@ def cpu_max_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_max(response)
         return result
@@ -72,7 +72,7 @@ def cpu_limits_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -88,7 +88,7 @@ def cpu_requests_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -104,7 +104,7 @@ def memory_limits_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -120,7 +120,7 @@ def memory_requests_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -136,7 +136,7 @@ def memory_actual_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_avg(response)
         return result
@@ -152,10 +152,26 @@ def memory_max_percentage_utilization(namespace):
         # Query parameters concatenated
         query_params = build_query(query, step_time)
         # Invoke the REST API method
-        response = get_response(query_params)
+        response = get_response(config['default']['prometheus_endpoint'], query_params)
         # Get the average of "result" array in json response
         result = get_max(response)
         return result
+    except:
+        raise
+
+# Get all namespaces
+def list_namespaces():
+    try:
+        namespace_list = []
+        # Invoke the REST API method
+        ns_response = get_response(config['default']['api_endpoint'], "namespaces")
+        if int(ns_response.status_code) == 200:
+            # Load the json document into a python object
+            json_response = json.loads(ns_response.text)
+            logger.log_note('Loaded the namespace json document into python object')
+            # Get list of namespaces from json
+            namespace_list = jq.compile(".items[].metadata.name").input(json_response).all()
+        return namespace_list
     except:
         raise
 
@@ -176,10 +192,10 @@ def build_query(query, step_time):
         raise
 
 # Build parameters & invoke the API
-def get_response(query_params):
+def get_response(endpoint, query_params):
     try:
         # Complete url
-        url = config['default']['prometheus_endpoint'] + query_params
+        url = endpoint + query_params
         
         # Bearer token for authorization
         token = config['default']['token']
