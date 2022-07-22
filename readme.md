@@ -1,4 +1,9 @@
 # OpenShift Monitoring using Custom dashboard
+
+Problem statement: Monitor & notify on applications which had major differences in resource utilization vs quota allotted. The team had come up with resource quota & limits based on different application categories and mapped them into respective sizes as small, medium & large. Despite of that, the cluster allotment was more than 50% whereas the actual cluster utilization was < 10%. This article talks about generating cluster utilization report which will extract the max utilization of the resources along with average utilization to identify the applications which are consistently under utilized over a period of time.
+
+## Solution
+
 OpenShift monitoring stack includes Prometheus for monitoring both systems and services, and Grafana for analyzing and visualizing metrics. However, Grafana instances provided with the monitoring stack (and its dashboards) are read-only. To solve this problem, we can use the community-powered Grafana operator provided by OperatorHub.
 > Community Operators are operators which have not been vetted or verified by Red Hat.
 
@@ -125,6 +130,9 @@ oc create -f ocp-metrics-cronjob.yaml -n <namespace>
 # To run cron job manually for testing
 oc create job --from=cronjob/<jobname> <test-pod-name>
 ```
+
+# STAR
+* [STAR](star-readme.md)
 
 # References
 * [Custom Grafana dashboards](https://www.redhat.com/en/blog/custom-grafana-dashboards-red-hat-openshift-container-platform-4)
